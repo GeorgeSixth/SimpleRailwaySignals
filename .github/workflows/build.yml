@@ -1,0 +1,16 @@
+name: Build and Test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-test:
+    uses: ./.github/workflows/build-test-base.yml
+    with:
+      build_type: 'Release'
+      compiler_version: '13'
+      run_tests: true
+      upload_artifacts: true

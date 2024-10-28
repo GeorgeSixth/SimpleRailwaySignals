@@ -1,0 +1,16 @@
+name: Debug Build
+
+on:
+  workflow_dispatch:  # Permet le déclenchement manuel
+  push:
+    branches: [ feature-** ]
+
+jobs:
+  debug-build:
+    uses: ./.github/workflows/build-test-base.yml
+    with:
+      build_type: 'Debug'
+      compiler_version: '13'
+      cpp_standard: 'gnu23'
+      run_tests: true
+      upload_artifacts: true
