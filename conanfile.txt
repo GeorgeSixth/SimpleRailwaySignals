@@ -1,0 +1,17 @@
+[requires]
+boost/1.84.0
+gtest/1.14.0
+
+[generators]
+CMakeDeps
+CMakeToolchain
+
+[options]
+boost/*:shared=False
+boost/*:header_only=False  # Changed to False because we need compiled components
+boost/*:without_fiber=True
+boost/*:without_stacktrace=True
+boost/*:without_python=True
+boost/*:without_json=True
+boost/*:without_nowide=True
+boost/*:without_test=True
