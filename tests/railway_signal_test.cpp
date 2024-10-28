@@ -1,4 +1,3 @@
-// Fichier: tests/railway_signal_test.cpp
 #include <gtest/gtest.h>
 #include "RailwaySignal.hpp"
 #include "SignalCommand.hpp"
@@ -18,42 +17,46 @@ protected:
     std::unique_ptr<RailwaySignal> signal;
 };
 
-/**
- * @brief Test de changement d'aspect
- * @safety_requirement SR_TEST_001
- */
 TEST_F(RailwaySignalTest, AspectChange) {
     // Arrange
     auto initialAspect = signal->getAspect();
-    ASSERT_EQ(initialAspect, RailwaySignal::Aspect::RED);
+    ASSERT_EQ(initialAspect, Aspect::RED);
 
     // Act
-    auto result = signal->setAspect(RailwaySignal::Aspect::GREEN);
+    auto result = signal->setAspect(Aspect::YELLOW);
 
     // Assert
     ASSERT_TRUE(result);
-    ASSERT_EQ(signal->getAspect(), RailwaySignal::Aspect::GREEN);
+    ASSERT_EQ(signal->getAspect(), Aspect::YELLOW);
 }
 
-/**
- * @brief Test de commande et d'annulation
- * @safety_requirement SR_TEST_002
- */
 TEST_F(RailwaySignalTest, CommandUndoRedo) {
     // Arrange
-    auto command = std::make_unique<ChangeAspectCommand>(*signal, RailwaySignal::Aspect::GREEN);
+    auto command = std::make_unique<ChangeAspectCommand>(*signal, Aspect::YELLOW);
 
-    // Act
+    // Act & Assert
+    ASSERT_EQ(signal->getAspect(), Aspect::RED);
+    
+    // Execute
     signal->executeCommand(std::move(command));
-    ASSERT_EQ(signal->getAspect(), RailwaySignal::Aspect::GREEN);
+    ASSERT_EQ(signal->getAspect(), Aspect::YELLOW);
 
     // Undo
     signal->undoLastCommand();
-    ASSERT_EQ(signal->getAspect(), RailwaySignal::Aspect::RED);
+    ASSERT_EQ(signal->getAspect(), Aspect::RED);
 
     // Redo
     signal->redoCommand();
-    ASSERT_EQ(signal->getAspect(), RailwaySignal::Aspect::GREEN);
+    ASSERT_EQ(signal->getAspect(), Aspect::YELLOW);
+}
+
+TEST_F(RailwaySignalTest, InvalidTransition) {
+    // Arrange & Act
+    auto result = signal->setAspect(Aspect::GREEN);
+
+    // Assert
+    ASSERT_FALSE(result);
+    ASSERT_EQ(signal->getAspect(), Aspect::RED);
 }
 
 } // namespace Railway::Test

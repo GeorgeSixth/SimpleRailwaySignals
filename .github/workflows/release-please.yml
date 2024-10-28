@@ -1,0 +1,76 @@
+name: Release Please
+
+on:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: google-github-actions/release-please-action@v3
+        id: release
+        with:
+          release-type: cpp
+          package-name: railway-signaling
+          changelog-types: |
+            [
+              {"type":"feat","section":"Features","hidden":false},
+              {"type":"fix","section":"Bug Fixes","hidden":false},
+              {"type":"chore","section":"Miscellaneous","hidden":false},
+              {"type":"refactor","section":"Refactoring","hidden":false},
+              {"type":"docs","section":"Documentation","hidden":false},
+              {"type":"perf","section":"Performance","hidden":false},
+              {"type":"test","section":"Testing","hidden":false},
+              {"type":"build","section":"Build System","hidden":false},
+              {"type":"ci","section":"Continuous Integration","hidden":false},
+              {"type":"style","section":"Styling","hidden":false},
+              {"type":"security","section":"Security","hidden":false}
+            ]
+
+      # Actions à effectuer seulement si une release a été créée
+      - uses: actions/checkout@v3
+        if: ${{ steps.release.outputs.release_created }}
+
+      - name: Install dependencies
+        if: ${{ steps.release.outputs.release_created }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-13 g++-13
+          pip install conan==2.8.0
+
+      - name: Configure Conan and build
+        if: ${{ steps.release.outputs.release_created }}
+        run: |
+          conan profile detect
+          mkdir build && cd build
+          conan install .. --build=missing
+          cmake .. -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release
+          cmake --build .
+
+      - name: Run tests
+        if: ${{ steps.release.outputs.release_created }}
+        run: |
+          cd build
+          ctest --output-on-failure
+
+      # Création des artefacts de build
+      - name: Create release artifacts
+        if: ${{ steps.release.outputs.release_created }}
+        run: |
+          cd build
+          tar czf ../railway-signaling.tar.gz bin/* lib/*
+
+      # Upload des artefacts
+      - name: Upload release artifacts
+        if: ${{ steps.release.outputs.release_created }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.release.outputs.upload_url }}
+          asset_path: ./railway-signaling.tar.gz
+          asset_name: railway-signaling.tar.gz
+          asset_content_type: application/gzip

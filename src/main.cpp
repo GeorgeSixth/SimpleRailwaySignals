@@ -1,12 +1,13 @@
-#include "RailwaySignal.hpp"
-#include "SignalCommand.hpp"
-
 #include <boost/asio.hpp>
-#include <iostream>
 #include <chrono>
+#include <iostream>
 #include <thread>
 
-// using namespace Railway;
+#include "RailwaySignal.hpp"
+#include "RailwayTypes.hpp"
+#include "SignalCommand.hpp"
+
+using namespace Railway;
 using namespace std::chrono_literals;
 
 /**
@@ -15,11 +16,11 @@ using namespace std::chrono_literals;
  * @requirement REQ_DEMO_001
  */
 class SignalDemo {
-public:
+   public:
     SignalDemo() : signal_("SIGNAL_DEMO_001") {
         // Configuration du handler pour les changements d'aspect
-        signal_.aspectChanged.connect([](Railway::RailwaySignal::Aspect aspect) {
-            std::cout << "Signal aspect changed to: " 
+        signal_.aspectChanged.connect([](Aspect aspect) {
+            std::cout << "Signal aspect changed to: "
                       << aspectToString(aspect) << std::endl;
         });
     }
@@ -31,18 +32,18 @@ public:
         // Démonstration des commandes et de leur réversibilité
         try {
             std::cout << "\nDémonstration des commandes et de leur réversibilité:\n";
-            
+
             // Transition vers jaune
             std::cout << "\nChanging to YELLOW...\n";
             auto yellowCmd = std::make_unique<ChangeAspectCommand>(
-                signal_, RailwaySignal::Aspect::YELLOW);
+                signal_, Aspect::YELLOW);
             signal_.executeCommand(std::move(yellowCmd));
             std::this_thread::sleep_for(2s);
 
             // Transition vers vert
             std::cout << "\nChanging to GREEN...\n";
             auto greenCmd = std::make_unique<ChangeAspectCommand>(
-                signal_, RailwaySignal::Aspect::GREEN);
+                signal_, Aspect::GREEN);
             signal_.executeCommand(std::move(greenCmd));
             std::this_thread::sleep_for(2s);
 
@@ -59,23 +60,29 @@ public:
             // Retour à rouge pour la sécurité
             std::cout << "\nReturning to RED (safety state)...\n";
             auto redCmd = std::make_unique<ChangeAspectCommand>(
-                signal_, RailwaySignal::Aspect::RED);
+                signal_, Aspect::RED);
             signal_.executeCommand(std::move(redCmd));
-            
+
         } catch (const std::exception& e) {
             std::cerr << "Error during demo: " << e.what() << std::endl;
             // En cas d'erreur, on s'assure de revenir à l'état sûr (rouge)
-            signal_.setAspect(RailwaySignal::Aspect::RED);
+            signal_.setAspect(Aspect::RED);
         }
     }
 
-private:
-    static std::string aspectToString(RailwaySignal::Aspect aspect) {
+   private:
+    static std::string aspectToString(Aspect aspect) {
         switch (aspect) {
-            case RailwaySignal::Aspect::RED: return "RED";
-            case RailwaySignal::Aspect::YELLOW: return "YELLOW";
-            case RailwaySignal::Aspect::GREEN: return "GREEN";
-            default: return "UNKNOWN";
+            using enum Railway::Aspect;
+
+            case RED:
+                return "RED";
+            case YELLOW:
+                return "YELLOW";
+            case Aspect::GREEN:
+                return "GREEN";
+            default:
+                return "UNKNOWN";
         }
     }
 
@@ -91,7 +98,7 @@ int main() {
     try {
         SignalDemo demo;
         demo.run();
-        
+
         std::cout << "\nDemonstration completed successfully.\n";
         return 0;
     } catch (const std::exception& e) {

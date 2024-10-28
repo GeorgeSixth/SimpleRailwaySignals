@@ -62,7 +62,7 @@ std::expected<void, std::string> RailwaySignal::setAspect(Aspect aspect) {
     }
 }
 
-RailwaySignal::Aspect RailwaySignal::getAspect() const {
+Aspect RailwaySignal::getAspect() const {
     return currentAspect_;
 }
 

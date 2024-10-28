@@ -3,6 +3,8 @@
 #include <chrono>
 #include <stdexcept>
 
+#include "RailwayTypes.hpp"
+
 namespace Railway {
 
 // RedState
@@ -11,9 +13,9 @@ void RedState::update() {
     // Dans un système réel, on vérifierait les capteurs, etc.
 }
 
-bool RedState::canTransitionTo(RailwaySignal::Aspect aspect) {
+bool RedState::canTransitionTo(Aspect aspect) {
     // Depuis rouge, on ne peut aller qu'à jaune
-    return aspect == RailwaySignal::Aspect::YELLOW;
+    return aspect == Aspect::YELLOW;
 }
 
 // YellowState
@@ -22,10 +24,9 @@ void YellowState::update() {
     // Dans un système réel, vérification des temporisations, etc.
 }
 
-bool YellowState::canTransitionTo(RailwaySignal::Aspect aspect) {
+bool YellowState::canTransitionTo(Aspect aspect) {
     // Depuis jaune, on peut aller soit à rouge soit à vert
-    return aspect == RailwaySignal::Aspect::RED || 
-           aspect == RailwaySignal::Aspect::GREEN;
+    return aspect == Aspect::RED || aspect == Aspect::GREEN;
 }
 
 // GreenState
@@ -34,16 +35,14 @@ void GreenState::update() {
     // Dans un système réel, vérification des circuits de voie, etc.
 }
 
-bool GreenState::canTransitionTo(RailwaySignal::Aspect aspect) {
+bool GreenState::canTransitionTo(Aspect aspect) {
     // Depuis vert, on ne peut aller qu'à jaune ou rouge (urgence)
-    return aspect == RailwaySignal::Aspect::YELLOW || 
-           aspect == RailwaySignal::Aspect::RED;
+    return aspect == Aspect::YELLOW || aspect == Aspect::RED;
 }
 
 // SafetyTimer implementation
 SafetyTimer::SafetyTimer(std::chrono::milliseconds timeout)
-    : timeout_(timeout)
-    , start_(std::chrono::steady_clock::now()) {}
+    : timeout_(timeout), start_(std::chrono::steady_clock::now()) {}
 
 bool SafetyTimer::hasExpired() const {
     auto now = std::chrono::steady_clock::now();
@@ -55,23 +54,20 @@ void SafetyTimer::reset() {
 }
 
 // StateValidator implementation
-bool StateValidator::validateTransition(
-    RailwaySignal::Aspect from, 
-    RailwaySignal::Aspect to
-) {
+bool StateValidator::validateTransition(Aspect from, Aspect to) {
     // Matrice de transition
+    
     static const bool transitionMatrix[3][3] = {
         // TO:   RED    YELLOW  GREEN
-        /* FROM RED */    
-        {       false,  true,   false  },
+        /* FROM RED */
+        {false, true, false},
         /* FROM YELLOW */
-        {       true,   false,  true   },
+        {true, false, true},
         /* FROM GREEN */
-        {       true,   true,   false  }
-    };
+        {true, true, false}};
 
-    int fromIndex = static_cast<int>(from);
-    int toIndex = static_cast<int>(to);
+    auto fromIndex = static_cast<int>(from);
+    auto toIndex = static_cast<int>(to);
 
     if (fromIndex < 0 || fromIndex > 2 || toIndex < 0 || toIndex > 2) {
         throw std::invalid_argument("Invalid aspect value");
@@ -80,4 +76,4 @@ bool StateValidator::validateTransition(
     return transitionMatrix[fromIndex][toIndex];
 }
 
-} // namespace Railway
+}  // namespace Railway

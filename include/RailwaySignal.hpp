@@ -2,11 +2,14 @@
 
 #include <boost/asio.hpp>
 #include <boost/signals2.hpp>
-
+#include <exception>
 #include <expected>
 #include <memory>
 #include <string>
 #include <vector>
+
+#include "RailwayTypes.hpp"
+#include "SignalCommand.hpp"
 
 namespace Railway {
 
@@ -21,12 +24,6 @@ class SignalState;
  */
 class RailwaySignal {
    public:
-    enum class Aspect {
-        RED,    ///< Signal fermé
-        GREEN,  ///< Signal ouvert
-        YELLOW  ///< Signal à vitesse limitée
-    };
-
     explicit RailwaySignal(const std::string& id);
     ~RailwaySignal();
 
@@ -45,23 +42,8 @@ class RailwaySignal {
      */
     Aspect getAspect() const;
 
-    /**
-     * @brief Exécute une commande sur le signal
-     * @safety_requirement SR_SIGNAL_003
-     * @param command Commande à exécuter
-     */
     void executeCommand(std::unique_ptr<SignalCommand> command);
-
-    /**
-     * @brief Annule la dernière commande
-     * @safety_requirement SR_SIGNAL_004
-     */
     void undoLastCommand();
-
-    /**
-     * @brief Réexécute la dernière commande annulée
-     * @safety_requirement SR_SIGNAL_005
-     */
     void redoCommand();
 
     // Signal pour la notification de changement d'état

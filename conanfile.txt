@@ -8,6 +8,10 @@ CMakeToolchain
 
 [options]
 boost/*:shared=False
-
-[layout]
-cmake_layout
+boost/*:header_only=False  # Changed to False because we need compiled components
+boost/*:without_fiber=True
+boost/*:without_stacktrace=True
+boost/*:without_python=True
+boost/*:without_json=True
+boost/*:without_nowide=True
+boost/*:without_test=True
