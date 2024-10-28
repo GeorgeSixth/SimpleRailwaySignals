@@ -58,34 +58,51 @@ Le système DOIT journaliser toutes les opérations de maintenance.
 ### MAINT_REQ_002 [SIL3]
 Le système DOIT supporter la mise à jour à chaud des paramètres.
 
-## 6. Matrices de Traçabilité
+## 6. Exigences de Démonstration (DEMO)
 
-### 6.1 Matrice Source → Test
+### DEMO_REQ_001 [SIL4]
+Le programme de démonstration DOIT illustrer les transitions d'états valides dans une séquence prédéfinie.
+
+### DEMO_REQ_002 [SIL4]
+Le programme de démonstration DOIT démontrer la capacité d'annulation et de réexécution des commandes.
+
+### DEMO_REQ_003 [SIL4]
+Le programme de démonstration DOIT assurer un retour à l'état sûr (Rouge) en fin d'exécution.
+
+### DEMO_REQ_004 [SIL4]
+Le programme de démonstration DOIT gérer et afficher clairement les erreurs potentielles.
+
+### DEMO_REQ_005 [SIL4]
+Le programme de démonstration DOIT illustrer le mécanisme de notification des changements d'état.
+
+## 7. Matrices de Traçabilité
+
+### 7.1 Matrice Source → Test
 
 | Exigence      | Test ID       | Description du Test |
 |---------------|---------------|------------------|
 | SYS_REQ_001   | TEST_001     | Vérification des trois aspects |
-| SYS_REQ_002   | TEST_002     | Test de cohérence d'état |
-| SAF_REQ_001   | TEST_003     | Test de failsafe |
-| FUNC_REQ_001  | TEST_004     | Test d'annulation |
+| DEMO_REQ_001  | TEST_002     | Séquence de transitions |
+| DEMO_REQ_002  | TEST_003     | Undo/Redo des commandes |
+| DEMO_REQ_003  | TEST_004     | Retour à l'état sûr |
 
-### 6.2 Matrice Code → Exigence
+### 7.2 Matrice Code → Exigence
 
 | Classe/Méthode | Exigence    | Niveau SIL |
 |----------------|-------------|------------|
-| RailwaySignal  | SYS_REQ_001 | SIL4       |
-| SignalCommand  | FUNC_REQ_001| SIL4       |
-| StateManager   | SAF_REQ_002 | SIL4       |
+| SignalDemo     | DEMO_REQ_001| SIL4       |
+| main           | DEMO_REQ_003| SIL4       |
+| aspectChanged  | DEMO_REQ_005| SIL4       |
 
-## 7. Règles de Validation
+## 8. Règles de Validation
 
-### 7.1 Transitions d'État Autorisées
+### 8.1 Transitions d'État Autorisées
 - Rouge → Jaune
 - Jaune → Vert
 - Vert → Jaune
 - Jaune → Rouge
 
-### 7.2 Conditions de Transition
+### 8.2 Conditions de Transition
 1. La transition vers Vert nécessite :
    - État précédent : Jaune
    - Voie libre confirmée
@@ -93,7 +110,7 @@ Le système DOIT supporter la mise à jour à chaud des paramètres.
 
 2. La transition vers Rouge est autorisée depuis n'importe quel état
 
-## 8. Références Normatives
+## 9. Références Normatives
 - CENELEC 50128:2011
 - CENELEC 50126-1:2017
 - CENELEC 50129:2018
