@@ -1,5 +1,7 @@
 # Railway Signaling System
 
+[![Test Report](https://github.com/GeorgeSixth/SimpleRailwaySignals/actions/workflows/test-report.yml/badge.svg)](https://github.com/GeorgeSixth/SimpleRailwaySignals/actions/workflows/test-report.yml)
+
 ## Description
 Ce système de signalisation ferroviaire est un exemple d'implémentation conforme à la norme CENELEC 50128 (SIL2). Il démontre la gestion des signaux ferroviaires simples avec support complet pour les changements d'états, les commandes réversibles et la gestion d'événements asynchrones. La simplicité de ce projet, fait qu'il est techniquement conforme à SIL4 sous la CENELEC 50128.
 

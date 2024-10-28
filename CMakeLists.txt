@@ -16,14 +16,19 @@ set(CMAKE_C_COMPILER gcc-13)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Trouver les dépendances
-find_package(Boost REQUIRED COMPONENTS system filesystem)
+find_package(Boost REQUIRED COMPONENTS system)
 find_package(GTest REQUIRED)
+
+# Configuration des tests pour sortie XML
+include(GoogleTest)
+enable_testing()
 
 # Bibliothèque principale
 add_library(railway_signaling
     src/RailwaySignal.cpp
     src/SignalState.cpp
     src/SignalCommand.cpp
+    src/SignalDemo.cpp
 )
 
 target_include_directories(railway_signaling PUBLIC
@@ -48,7 +53,6 @@ target_link_libraries(railway_signal_demo PRIVATE
 )
 
 # Tests unitaires
-enable_testing()
 add_executable(railway_signaling_test
     tests/railway_signal_test.cpp
 )
@@ -56,8 +60,10 @@ add_executable(railway_signaling_test
 target_link_libraries(railway_signaling_test
     PRIVATE
     railway_signaling
-    GTest::GTest
-    GTest::Main
+    GTest::gtest
+    GTest::gtest_main
 )
 
-add_test(NAME railway_signaling_test COMMAND railway_signaling_test)
+gtest_discover_tests(railway_signaling_test
+    XML_OUTPUT_DIR ${CMAKE_BINARY_DIR}/test-results
+)
