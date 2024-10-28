@@ -1,0 +1,47 @@
+# Fichier: .github/workflows/build-and-test.yml
+name: Build and Test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
+
+    - name: Install Conan
+      run: |
+        pip install conan==2.8.0
+
+    - name: Configure Conan
+      run: |
+        conan profile detect
+
+    - name: Install dependencies
+      run: |
+        mkdir build && cd build
+        conan install .. --output-folder . --build=missing
+
+    - name: Configure CMake
+      run: |
+        cd build
+        cmake .. -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release
+
+    - name: Build
+      run: |
+        cd build
+        cmake --build .
+
+    - name: Test
+      run: |
+        cd build
+        ctest --output-on-failure
