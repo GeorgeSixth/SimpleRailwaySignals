@@ -69,10 +69,10 @@ Utilisation de Boost.Asio et Boost.Signals2 pour :
 
 ## Documentation
 La documentation complète est disponible dans le dossier `docs/` :
-- Spécifications des exigences
-- Matrices de traçabilité
-- Documentation de sécurité
-- Guides d'utilisation
+- [Exigences CENELEC et SIL](docs/REQUIREMENTS.MD)
+- [Référence des Classes](docs/CLASS_REFERENCE.md)
+- [Documentation de Sécurité](docs/SAFETY.md)
+- [Documentation de Conception](docs/DESIGN.md)
 
 ## Tests
 Le projet inclut plusieurs niveaux de tests :
