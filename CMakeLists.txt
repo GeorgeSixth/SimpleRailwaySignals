@@ -28,6 +28,7 @@ add_library(railway_signaling
     src/RailwaySignal.cpp
     src/SignalState.cpp
     src/SignalCommand.cpp
+    src/SignalDemo.cpp
 )
 
 target_include_directories(railway_signaling PUBLIC
