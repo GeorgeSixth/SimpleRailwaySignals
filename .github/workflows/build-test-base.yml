@@ -1,0 +1,129 @@
+name: Build and Test Base
+
+on:
+  workflow_call:
+    inputs:
+      build_type:
+        description: 'Type of build (Debug/Release)'
+        type: string
+        default: 'Release'
+      compiler_version:
+        description: 'GCC version to use'
+        type: string
+        default: '13'
+      conan_version:
+        description: 'Conan version to use'
+        type: string
+        default: '2.8.0'
+      cpp_standard:
+        description: 'C++ standard to use'
+        type: string
+        default: 'gnu23'
+      run_tests:
+        description: 'Whether to run tests'
+        type: boolean
+        default: true
+      upload_artifacts:
+        description: 'Whether to upload test results and binaries'
+        type: boolean
+        default: true
+    outputs:
+      test-path:
+        description: "Path to test results"
+        value: ${{ jobs.build-and-test.outputs.test-path }}
+      artifacts-path:
+        description: "Path to build artifacts"
+        value: ${{ jobs.build-and-test.outputs.artifacts-path }}
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    outputs:
+      test-path: ${{ steps.save-paths.outputs.test-path }}
+      artifacts-path: ${{ steps.save-paths.outputs.artifacts-path }}
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install GCC ${{ inputs.compiler_version }}
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y software-properties-common
+        sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+        sudo apt-get update
+        sudo apt-get install -y gcc-${{ inputs.compiler_version }} g++-${{ inputs.compiler_version }}
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
+
+    - name: Install Conan
+      run: |
+        python -m pip install --upgrade pip
+        pip install conan==${{ inputs.conan_version }}
+
+    - name: Configure Conan
+      run: |
+        conan profile detect --force
+        cat > ~/.conan2/profiles/default << EOF
+        [settings]
+        arch=x86_64
+        build_type=${{ inputs.build_type }}
+        compiler=gcc
+        compiler.cppstd=${{ inputs.cpp_standard }}
+        compiler.libcxx=libstdc++11
+        compiler.version=${{ inputs.compiler_version }}
+        os=Linux
+        [conf]
+        tools.build:compiler_executables={"c": "gcc-${{ inputs.compiler_version }}", "cpp": "g++-${{ inputs.compiler_version }}"}
+        EOF
+
+    - name: Configure and Build
+      run: |
+        mkdir build && cd build
+        conan install .. --build=missing
+        cmake .. \
+          -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake \
+          -DCMAKE_BUILD_TYPE=${{ inputs.build_type }} \
+          -DCMAKE_C_COMPILER=gcc-${{ inputs.compiler_version }} \
+          -DCMAKE_CXX_COMPILER=g++-${{ inputs.compiler_version }}
+        cmake --build .
+
+    - name: Run Tests
+      if: inputs.run_tests
+      run: |
+        cd build
+        mkdir -p test-results
+        ./railway_signaling_test --gtest_output="xml:./test-results/test_report.xml"
+
+    - name: Create Artifacts
+      if: inputs.upload_artifacts
+      run: |
+        cd build
+        mkdir -p artifacts
+        cp bin/* artifacts/ || true
+        cp lib/* artifacts/ || true
+        tar czf artifacts.tar.gz artifacts/
+
+    - name: Save Paths
+      id: save-paths
+      run: |
+        echo "test-path=build/test-results/test_report.xml" >> $GITHUB_OUTPUT
+        echo "artifacts-path=build/artifacts.tar.gz" >> $GITHUB_OUTPUT
+
+    - name: Upload Test Results
+      if: inputs.upload_artifacts && inputs.run_tests
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-results
+        path: build/test-results/test_report.xml
+        retention-days: 1
+
+    - name: Upload Build Artifacts
+      if: inputs.upload_artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: build-artifacts
+        path: build/artifacts.tar.gz
+        retention-days: 1
