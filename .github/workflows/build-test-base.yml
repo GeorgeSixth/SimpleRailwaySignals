@@ -112,18 +112,18 @@ jobs:
         echo "test-path=build/test-results/test_report.xml" >> $GITHUB_OUTPUT
         echo "artifacts-path=build/artifacts.tar.gz" >> $GITHUB_OUTPUT
 
+    - name: Run Tests
+      if: inputs.run_tests
+      run: |
+        cd build
+        mkdir -p test-results
+        ./railway_signaling_test --gtest_output="xml:./test-results/test_report.xml"
+        ls -la test-results/  # Debug pour vérifier la création du fichier
+
     - name: Upload Test Results
       if: inputs.upload_artifacts && inputs.run_tests
       uses: actions/upload-artifact@v3
       with:
-        name: test-results
-        path: build/test-results/test_report.xml
-        retention-days: 1
-
-    - name: Upload Build Artifacts
-      if: inputs.upload_artifacts
-      uses: actions/upload-artifact@v3
-      with:
-        name: build-artifacts
-        path: build/artifacts.tar.gz
-        retention-days: 1
+          name: test-results
+          path: build/test-results/*.xml
+          retention-days: 1
