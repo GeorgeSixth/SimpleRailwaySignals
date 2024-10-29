@@ -9,7 +9,7 @@ on:
 jobs:
   build-test:
     permissions: write-all
-    uses: /GeorgeSixth/SimpleRailwaySignals/.github/workflows/build-test-base.yml@main
+    uses: ./.github/workflows/build-test-base.yml
     with:
       build_type: 'Release'
       compiler_version: '13'
