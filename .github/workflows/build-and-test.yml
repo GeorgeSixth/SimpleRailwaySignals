@@ -77,17 +77,3 @@ jobs:
         path: build/test-results/test_report.xml
         reporter: java-junit
         fail-on-error: true
-
-    - name: Create Release Artifacts
-      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-      run: |
-        cd build
-        tar czf ../railway-signaling.tar.gz bin/* lib/*
-
-    - name: Upload Build Artifacts
-      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-      uses: actions/upload-artifact@v3
-      with:
-        name: railway-signaling
-        path: railway-signaling.tar.gz
-        retention-days: 5
