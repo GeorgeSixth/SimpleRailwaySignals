@@ -1,3 +1,5 @@
+[![Build and Test](https://github.com/GeorgeSixth/SimpleRailwaySignals/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/GeorgeSixth/SimpleRailwaySignals/actions/workflows/build-and-test.yml)
+
 # Railway Signaling System
 
 ## Description
