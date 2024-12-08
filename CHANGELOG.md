@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.0.1](https://github.com/GeorgeSixth/SimpleRailwaySignals/compare/v1.0.0...v1.0.1) (2024-12-08)
+
+
+### Bug Fixes
+
+* removed most of the build files that polluted the process and unified into one ([a00f4d5](https://github.com/GeorgeSixth/SimpleRailwaySignals/commit/a00f4d53fa2a8184bab5fb2e3f0de048d801411d))
+
+
+### Refactoring
+
+* 💡 The whole CI system to better split responsability ([5564578](https://github.com/GeorgeSixth/SimpleRailwaySignals/commit/55645784ea04a125a865e5305e02f8aa846b66e2))
+
 ## 1.0.0 (2024-10-28)
 
 
